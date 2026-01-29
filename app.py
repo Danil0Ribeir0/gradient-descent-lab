@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tools import derivada_numerica
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Laboratório de Gradiente Descendente", layout="wide")
 
-st.title("🏔️ Explorador de Otimização (Cálculo 1)")
+st.title("Explorador de Otimização")
 st.markdown("""
 Este painel simula o comportamento de um algoritmo de otimização tentando encontrar o mínimo de uma função.
 **Ajuste os parâmetros na barra lateral e veja o gráfico reagir!**
