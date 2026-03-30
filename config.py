@@ -90,10 +90,3 @@ MENSAGENS_STATUS = {
 }
 
 MOMENTUM_ALTO_THRESHOLD = 0.5
-
-CORES_EVENTO = {
-    "bom": "success",
-    "aviso": "warning",
-    "erro": "error",
-    "info": "info",
-}

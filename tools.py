@@ -16,7 +16,9 @@ def derivada_numerica(
         if np.isnan(y_atual) or np.isnan(y_frente):
             raise ValueError(f"Função retornou NaN em x={x}")
         
-        derivada = (y_frente - y_atual) / h
+        y_tras = funcao(x - h)
+        derivada = (y_frente - y_tras) / (2 * h)
+        
         return derivada
         
     except Exception as e:
@@ -97,7 +99,9 @@ def executar_gradiente(
         try:
             incl_final = derivada_numerica(funcao, historico_x[-1])
         except Exception as e:
-            pass
+            status = "erro"
+            mensagem = f"Erro ao calcular inclinação final (possível overflow): {str(e)}"
+            incl_final = 0.0
     
     if status == "sucesso":
         if abs(incl_final) < config.TOLERANCIA_INCLINACAO:

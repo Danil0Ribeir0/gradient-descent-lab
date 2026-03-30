@@ -42,11 +42,3 @@ class ParametrosOtimizacao:
             raise ValueError(f"Momentum deve estar entre 0.0 e 0.99, recebeu {self.momentum}")
         if self.iteracoes < 1 or self.iteracoes > 200:
             raise ValueError(f"Iterações deve estar entre 1 e 200, recebeu {self.iteracoes}")
-
-
-@dataclass
-class DadosVisualizacao:
-    historico_x: List[float]
-    historico_y: List[float]
-    resultado: ResultadoGradiente
-    titulo: str

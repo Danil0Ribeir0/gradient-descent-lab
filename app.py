@@ -1,5 +1,4 @@
 import streamlit as st
-
 import config
 import visualizador
 from tools import executar_gradiente
@@ -75,7 +74,15 @@ with col2:
     
     if status in config.MENSAGENS_STATUS:
         mensagem, tipo = config.MENSAGENS_STATUS[status]
-        getattr(st, tipo)(mensagem)
+        match tipo:
+            case "success":
+                st.success(mensagem)
+            case "warning":
+                st.warning(mensagem)
+            case "error":
+                st.error(mensagem)
+            case "info":
+                st.info(mensagem)
     else:
         st.info(f"ℹ️ {status.upper()}")
     
