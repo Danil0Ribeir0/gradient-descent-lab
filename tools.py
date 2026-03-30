@@ -1,11 +1,4 @@
-"""
-Módulo de cálculo matemático para o Gradient Descent Visualizer.
-
-Implementa o algoritmo de gradiente descendente com derivação numérica
-e suporte para momentum (inércia).
-"""
-
-from typing import Callable, Dict, Any
+from typing import Callable
 import numpy as np
 import config
 from modelos import ResultadoGradiente
@@ -16,22 +9,6 @@ def derivada_numerica(
     x: float,
     h: float = config.DERIVADA_H,
 ) -> float:
-    """
-    Calcula a derivada de uma função em um ponto usando aproximação numérica.
-    
-    Usa a definição de limite: f'(x) ≈ (f(x+h) - f(x)) / h
-    
-    Args:
-        funcao: Função para a qual calcular a derivada.
-        x: Ponto em que calcular a derivada.
-        h: Pequeno deslocamento para aproximação (padrão: 0.0001).
-        
-    Returns:
-        Valor aproximado da derivada em x.
-        
-    Raises:
-        ValueError: Se a função não for avaliável em x ou x+h.
-    """
     try:
         y_atual = funcao(x)
         y_frente = funcao(x + h)
@@ -51,29 +28,9 @@ def executar_gradiente(
     iteracoes: int,
     momentum: float = 0.0,
 ) -> ResultadoGradiente:
-    """
-    Executa o algoritmo de gradiente descendente com suporte a momentum.
-    
-    O algoritmo iterativamente:
-    1. Calcula a derivada (inclinação) no ponto atual
-    2. Atualiza velocidade (momentum): v = momentum*v + lr*derivada
-    3. Move-se contra a derivada: x_novo = x_atual - v
-    
-    Args:
-        funcao: Função f(x) a ser minimizada.
-        x_inicial: Ponto de partida.
-        learning_rate: Taxa de aprendizado (tamanho do passo).
-        iteracoes: Número máximo de iterações.
-        momentum: Coeficiente de momentum em [0.0, 0.99] (padrão: 0.0).
-        
-    Returns:
-        ResultadoGradiente com histórico, status e diagnóstico.
-    """
-    # Inicializa histórico
     historico_x = [x_inicial]
     historico_y = []
     
-    # Validação inicial
     try:
         y_ini = funcao(x_inicial)
         if np.isnan(y_ini) or np.isinf(y_ini):
@@ -94,25 +51,17 @@ def executar_gradiente(
             incl_final=0.0,
         )
     
-    # Estado do algoritmo
     x_atual = x_inicial
-    velocidade = 0.0  # Para momentum
+    velocidade = 0.0
     status = "sucesso"
     mensagem = "Convergência realizada."
     
-    # Loop de otimização
     for i in range(iteracoes):
         try:
-            # Calcula derivada
             inclinacao = derivada_numerica(funcao, x_atual)
-            
-            # Atualiza velocidade com momentum
             velocidade = (momentum * velocidade) + (learning_rate * inclinacao)
-            
-            # Atualiza posição
             x_novo = x_atual - velocidade
             
-            # Verifica explosão
             if abs(x_novo) > config.LIMITE_X_EXPLOSAO or np.isnan(x_novo):
                 status = "explosao"
                 mensagem = f"Explodiu na iteração {i+1}!"
@@ -121,7 +70,6 @@ def executar_gradiente(
             x_atual = x_novo
             historico_x.append(x_atual)
             
-            # Calcula novo y
             y_novo = funcao(x_atual)
             if np.isnan(y_novo) or np.isinf(y_novo):
                 status = "erro"
@@ -135,15 +83,13 @@ def executar_gradiente(
             mensagem = f"Erro na iteração {i+1}: {str(e)}"
             break
     
-    # Diagnóstico final
     incl_final = 0.0
     if historico_x:
         try:
             incl_final = derivada_numerica(funcao, historico_x[-1])
         except Exception:
-            pass  # Se não conseguir calcular, deixa 0.0
+            pass
     
-    # Determina status final
     if status == "sucesso":
         if abs(incl_final) < config.TOLERANCIA_INCLINACAO:
             status = "otimo"

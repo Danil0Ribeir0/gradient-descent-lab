@@ -4,16 +4,6 @@ from typing import List
 
 @dataclass
 class ResultadoGradiente:
-    """
-    Encapsula o resultado de uma execução do algoritmo de gradiente descendente.
-    
-    Attributes:
-        x (List[float]): Historicamente de valores de x visitados.
-        y (List[float]): Historicamente de valores f(x) correspondentes.
-        status (str): Status da otimização ('otimo', 'descendo', 'explosao', etc).
-        msg (str): Mensagem descritiva sobre o resultado.
-        incl_final (float): Inclinação (derivada) no ponto final.
-    """
     x: List[float]
     y: List[float]
     status: str
@@ -39,15 +29,6 @@ class ResultadoGradiente:
 
 @dataclass
 class ParametrosOtimizacao:
-    """
-    Encapsula os parâmetros de entrada do algoritmo de otimização.
-    
-    Attributes:
-        learning_rate (float): Taxa de aprendizado (tamanho do passo).
-        momentum (float): Coeficiente de momentum (inércia).
-        iteracoes (int): Número máximo de iterações.
-        x_inicial (float): Ponto de partida.
-    """
     learning_rate: float
     momentum: float
     iteracoes: int
@@ -65,15 +46,6 @@ class ParametrosOtimizacao:
 
 @dataclass
 class DadosVisualizacao:
-    """
-    Encapsula dados necessários para visualizar a otimização.
-    
-    Attributes:
-        historico_x (List[float]): Valores de x.
-        historico_y (List[float]): Valores de y = f(x).
-        resultado (ResultadoGradiente): Resultado da otimização.
-        titulo (str): Título do gráfico.
-    """
     historico_x: List[float]
     historico_y: List[float]
     resultado: ResultadoGradiente
