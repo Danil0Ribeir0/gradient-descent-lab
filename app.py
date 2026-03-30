@@ -4,6 +4,13 @@ import visualizador
 from tools import executar_gradiente
 from validators import ValidadorParametros
 
+@st.cache_data(show_spinner=False)
+def obter_resultado_gradiente(funcao_texto, x_ini, lr, iteracoes, momentum):
+    _, _, func_usuario = ValidadorParametros.validar_funcao(funcao_texto)
+    return executar_gradiente(func_usuario, x_ini, lr, iteracoes, momentum)
+
+st.set_page_config(page_title=config.TITULO_PAGINA, layout=config.LAYOUT)
+
 st.set_page_config(page_title=config.TITULO_PAGINA, layout=config.LAYOUT)
 st.title(config.TITULO_APP)
 
@@ -54,7 +61,7 @@ if not valido_todos:
         st.sidebar.error(f"  • {erro}")
     st.stop()
 
-resultado = executar_gradiente(func_usuario, x_ini, lr, iteracoes, momentum)
+resultado = obter_resultado_gradiente(funcao_texto, x_ini, lr, iteracoes, momentum)
 
 historico_x = resultado.x
 historico_y = resultado.y
