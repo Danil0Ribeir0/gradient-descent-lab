@@ -37,10 +37,19 @@ def criar_visualizacao(
     )
     
     x_grid = np.linspace(lim_x_min, lim_x_max, config.PONTOS_GRID_X)
+    
     try:
-        y_grid = [funcao(x) for x in x_grid]
-    except Exception as e:
-        raise ValueError(f"Erro ao plotar terreno: {e}")
+        y_grid = funcao(x_grid)
+        
+        if isinstance(y_grid, (int, float)):
+            y_grid = np.full_like(x_grid, y_grid)
+            
+    except Exception:
+        try:
+            y_grid = [funcao(x) for x in x_grid]
+        except Exception as e:
+            raise ValueError(f"Erro ao plotar terreno: {e}")
+    # ---------------------------------------------------
 
     fig = go.Figure()
 
