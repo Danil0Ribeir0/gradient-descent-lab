@@ -72,7 +72,7 @@ col1, col2 = st.columns(config.LAYOUT_COLUNAS)
 with col1:
     try:
         fig = visualizador.criar_visualizacao(func_usuario, resultado, momentum)
-        st.pyplot(fig)
+        st.plotly_chart(fig, use_container_width=True)
     except ValueError as e:
         st.warning(f"⚠️ {e}")
 
