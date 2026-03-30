@@ -71,12 +71,12 @@ class Adam(OtimizadorBase):
 
 def derivada_numerica(funcao: Callable[[float], float], x: float, h: float = config.DERIVADA_H) -> float:
     try:
-        y_atual = funcao(x)
         y_frente = funcao(x + h)
-        if np.isnan(y_atual) or np.isnan(y_frente):
-            raise ValueError(f"Função retornou NaN em x={x}")
-        
         y_tras = funcao(x - h)
+        
+        if np.isnan(y_frente) or np.isnan(y_tras):
+            raise ValueError(f"Função retornou NaN ao redor de x={x}")
+        
         return (y_frente - y_tras) / (2 * h)
     except Exception as e:
         raise ValueError(f"Erro ao calcular derivada: {e}")
@@ -115,12 +115,19 @@ def executar_gradiente(
     x_atual = x_inicial
     status = "sucesso"
     mensagem = "Convergência realizada."
+
+    incl_final = 0.0
     
     for t in range(1, iteracoes + 1):
         try:
             inclinacao = derivada_numerica(funcao, x_atual)
-            
             passo = motor.calcular_passo(inclinacao, t)
+
+            if abs(inclinacao) < config.TOLERANCIA_INCLINACAO and abs(passo) <= config.TOLERANCIA_VELOCIDADE:
+                incl_final = inclinacao
+                status, mensagem = "otimo", f"Mínimo encontrado na iteração {t}."
+                break
+            
             x_novo = x_atual - passo
             
             if abs(x_novo) > config.LIMITE_X_EXPLOSAO or np.isnan(x_novo):
@@ -140,19 +147,18 @@ def executar_gradiente(
             status, mensagem = "erro", f"Erro na iteração {t}: {str(e)}"
             break
             
-    incl_final = 0.0
-    if historico_x:
+    if status == "sucesso" and historico_x:
         try:
             incl_final = derivada_numerica(funcao, historico_x[-1])
+            
+            if abs(incl_final) < config.TOLERANCIA_INCLINACAO:
+                status, mensagem = "otimo", "Mínimo encontrado no limite de iterações."
+            elif abs(motor.ultimo_passo) > config.TOLERANCIA_VELOCIDADE:
+                status, mensagem = "descendo", "Passando pelo plano com inércia..."
+            else:
+                status, mensagem = "proximo", "Perto do mínimo ou velocidade decaiu."
+                
         except Exception as e:
             status, mensagem = "erro", f"Erro final (possível overflow): {str(e)}"
-    
-    if status == "sucesso":
-        if abs(incl_final) < config.TOLERANCIA_INCLINACAO:
-            status, mensagem = "otimo", "Mínimo encontrado."
-        elif abs(motor.ultimo_passo) > config.TOLERANCIA_VELOCIDADE:
-            status, mensagem = "descendo", "Passando pelo plano com inércia..."
-        else:
-            status, mensagem = "proximo", "Perto do mínimo ou velocidade decaiu."
             
     return ResultadoGradiente(x=historico_x, y=historico_y, status=status, msg=mensagem, incl_final=incl_final)
