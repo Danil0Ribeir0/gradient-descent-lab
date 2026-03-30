@@ -8,8 +8,10 @@ class ValidadorParametros:
     @staticmethod
     def validar_funcao(funcao_texto: str) -> Tuple[bool, str, Callable]:
         try:
-            func_usuario = lambda x: eval(funcao_texto, {"__builtins__": {}, "x": x, "np": np})
-            test_result = func_usuario(0)
+            codigo_compilado = compile(funcao_texto, '<string>', 'eval')
+            
+            func_usuario = lambda x: eval(codigo_compilado, {"__builtins__": {}, "x": x, "np": np})
+            test_result = func_usuario(0.0)
             
             if np.isnan(test_result) or np.isinf(test_result):
                 return False, "Função retorna NaN ou infinito", None
