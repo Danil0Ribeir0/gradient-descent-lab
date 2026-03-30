@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import config
 import visualizador
 from tools import executar_gradiente
+from validators import ValidadorParametros
 
 st.set_page_config(page_title=config.TITULO_PAGINA, layout=config.LAYOUT)
 st.title(config.TITULO_APP)
@@ -40,11 +41,20 @@ x_ini = st.sidebar.slider(
     config.X_INI_DEFAULT
 )
 
-try:
-    func_usuario = lambda x: eval(funcao_texto, {"x": x, "np": np})
-    func_usuario(0)
-except Exception as e:
-    st.error(f"Erro na função: {e}")
+valido_func, msg_func, func_usuario = ValidadorParametros.validar_funcao(funcao_texto)
+
+if not valido_func:
+    st.error(f"❌ {msg_func}")
+    st.stop()
+
+valido_todos, erros = ValidadorParametros.validar_todos_parametros(
+    funcao_texto, lr, momentum, iteracoes, x_ini
+)
+
+if not valido_todos:
+    st.sidebar.error("❌ Erros nos parâmetros:")
+    for erro in erros:
+        st.sidebar.error(f"  • {erro}")
     st.stop()
 
 resultado = executar_gradiente(func_usuario, x_ini, lr, iteracoes, momentum)
@@ -60,7 +70,7 @@ with col1:
         fig = visualizador.criar_visualizacao(func_usuario, resultado, momentum)
         st.pyplot(fig)
     except ValueError as e:
-        st.warning(f"{e}")
+        st.warning(f"⚠️ {e}")
 
 with col2:
     st.subheader("Diagnóstico")
@@ -69,7 +79,7 @@ with col2:
         mensagem, tipo = config.MENSAGENS_STATUS[status]
         getattr(st, tipo)(mensagem)
     else:
-        st.info(status.upper())
+        st.info(f"ℹ️ {status.upper()}")
     
     st.write(resultado.msg)
     st.write("---")
@@ -77,6 +87,7 @@ with col2:
     if resultado.tem_dados():
         st.metric("Posição Final", f"{resultado.x[-1]:.4f}")
         st.metric("Inclinação Final", f"{resultado.incl_final:.4f}")
+        st.metric("Iterações Executadas", len(resultado.x) - 1)
     
     if momentum > config.MOMENTUM_ALTO_THRESHOLD:
         st.caption("💡 Com Momentum alto, é normal a IA 'balançar' no fundo.")

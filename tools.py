@@ -16,7 +16,9 @@ def derivada_numerica(
         if np.isnan(y_atual) or np.isnan(y_frente):
             raise ValueError(f"Função retornou NaN em x={x}")
         
-        return (y_frente - y_atual) / h
+        derivada = (y_frente - y_atual) / h
+        return derivada
+        
     except Exception as e:
         raise ValueError(f"Erro ao calcular derivada: {e}")
 
@@ -33,6 +35,7 @@ def executar_gradiente(
     
     try:
         y_ini = funcao(x_inicial)
+        
         if np.isnan(y_ini) or np.isinf(y_ini):
             return ResultadoGradiente(
                 x=[],
@@ -62,7 +65,12 @@ def executar_gradiente(
             velocidade = (momentum * velocidade) + (learning_rate * inclinacao)
             x_novo = x_atual - velocidade
             
-            if abs(x_novo) > config.LIMITE_X_EXPLOSAO or np.isnan(x_novo):
+            if abs(x_novo) > config.LIMITE_X_EXPLOSAO:
+                status = "explosao"
+                mensagem = f"Explodiu na iteração {i+1}!"
+                break
+            
+            if np.isnan(x_novo):
                 status = "explosao"
                 mensagem = f"Explodiu na iteração {i+1}!"
                 break
@@ -78,6 +86,7 @@ def executar_gradiente(
             
             historico_y.append(y_novo)
             
+            
         except Exception as e:
             status = "erro"
             mensagem = f"Erro na iteração {i+1}: {str(e)}"
@@ -87,7 +96,7 @@ def executar_gradiente(
     if historico_x:
         try:
             incl_final = derivada_numerica(funcao, historico_x[-1])
-        except Exception:
+        except Exception as e:
             pass
     
     if status == "sucesso":
